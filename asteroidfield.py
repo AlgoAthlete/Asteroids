@@ -5,6 +5,7 @@ import pygame #type: ignore
 from asteroid import Asteroid
 from constants import *
 
+
 Edge = tuple[pygame.Vector2, Callable[[float], pygame.Vector2]]
 
 
@@ -37,16 +38,19 @@ class AsteroidField(pygame.sprite.Sprite):
     def __init__(self) -> None:
         pygame.sprite.Sprite.__init__(self, self.containers)
         self.spawn_timer = 0.0
+        self.score = 0
 
     def spawn(
         self, radius: float, position: pygame.Vector2, velocity: pygame.Vector2
     ) -> None:
         asteroid = Asteroid(position.x, position.y, radius)
-        asteroid.velocity = velocity
+        speed_multiplier = 1.0 + (self.score / 1000)
+        asteroid.velocity = velocity * speed_multiplier
 
     def update(self, dt: float) -> None:
         self.spawn_timer += dt
-        if self.spawn_timer > ASTEROID_SPAWN_RATE_SECONDS:
+        current_spawn_rate = max(0.4, ASTEROID_SPAWN_RATE_SECONDS - (self.score / 8000))
+        if self.spawn_timer > current_spawn_rate:
             self.spawn_timer = 0
 
             # spawn a new asteroid at a random edge
